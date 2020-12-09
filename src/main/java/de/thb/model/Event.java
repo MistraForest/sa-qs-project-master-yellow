@@ -26,10 +26,6 @@ public class Event {
 	public void setRestOfTicket(int restOfTicket) {
 		this.restOfTicket = restOfTicket;
 	}
-
-	public void updateEventNumberOfTicket(int numberOfTicketToBuy) {
-        this.numberOfTicket = this.numberOfTicket - numberOfTicketToBuy;
-    }   
     
     public String getName() {
 		return name;
@@ -52,6 +48,7 @@ public class Event {
 	}
 
 	public void setNumberOfTicket(int numberOfTicket) {
+    	if(numberOfTicket < 0) numberOfTicket = 0;
 		this.numberOfTicket = numberOfTicket;
 	}
     

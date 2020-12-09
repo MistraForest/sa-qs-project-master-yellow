@@ -1,19 +1,9 @@
 package de.thb;
 
 import de.thb.view.DashboardUI;
-import de.thb.view.TableEventUI;
 
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import java.awt.GridLayout;
-
-import java.awt.Dimension;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
