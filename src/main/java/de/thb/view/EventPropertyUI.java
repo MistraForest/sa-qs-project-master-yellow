@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.security.AccessControlException;
 
 public class EventPropertyUI extends JPanel implements ActionListener, FocusListener {
 	/**
@@ -34,22 +33,21 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	 */
 	private static final long serialVersionUID = 1L;
 	JTextField eventNameField, ticketQuantityField, ticketQuantityToBuyField, availibilityField, eventDateField;
-	boolean addressSet = false;
-	Font regularFont, italicFont;
+	boolean isFieldSet = false;
+	Font regularFont, boldRegularFont, italicFont, boldFont;
 	JLabel actualAvailabilityDisplay;
+	JLabel actualAvailabilityLabel = new JLabel();
 	JPanel leftHalf;
 	JButton button;
 	private final int GAP_BETWEEN = 7;
 	final static int TEXTFIELD_COLUMN = 5;
 	private Event e;
 	private int anzViews = 0;
-	private AppSystem appSystem = new AppSystem();
+	private AppSystem appSystem = AppSystem.getIstance();
 
 	public EventPropertyUI(int anzViews) {
 		this.anzViews = anzViews;
-
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-
 		add(createLeftHalf());
 		if (2 == this.anzViews) {
 			add(createActualAvailabilityDisplay());
@@ -91,50 +89,56 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	 */
 	public void actionPerformed(ActionEvent e) {
 		if ("clear".equals(e.getActionCommand())) {
-			addressSet = false;
+			isFieldSet = false;
 			eventNameField.setText("");
 			eventDateField.setText("");
 			availibilityField.setText("");
 			ticketQuantityField.setText("");
 		} else {
-			addressSet = true;
+			isFieldSet = true;
 		}
 		updateDisplays();
 	}
 
 	protected void updateDisplays() {
 		actualAvailabilityDisplay.setText(getActualAvailability());
-		if (addressSet) {
+		actualAvailabilityLabel.setText("");
+		if (isFieldSet) {
 			actualAvailabilityDisplay.setFont(regularFont);
+			actualAvailabilityLabel.setFont(regularFont);
 		} else {
-			actualAvailabilityDisplay.setFont(italicFont);
+			actualAvailabilityDisplay.setFont(boldFont);
+			actualAvailabilityLabel.setFont(italicFont);
 		}
 	}
 
 	protected JComponent createActualAvailabilityDisplay() {
 		JPanel panel = new JPanel(new BorderLayout());
 		actualAvailabilityDisplay = new JLabel();
+		actualAvailabilityLabel = new JLabel();
 		actualAvailabilityDisplay.setHorizontalAlignment(JLabel.CENTER);
-		regularFont = actualAvailabilityDisplay.getFont().deriveFont(Font.BOLD, 16.0f);
-		italicFont = regularFont.deriveFont(Font.ITALIC);
+		actualAvailabilityLabel.setHorizontalAlignment(JLabel.CENTER);
+		boldRegularFont = actualAvailabilityDisplay.getFont().deriveFont(Font.ITALIC, 45.0f);
+		regularFont = actualAvailabilityLabel.getFont().deriveFont(Font.ITALIC, 16.0f);
+		italicFont = regularFont.deriveFont(Font.CENTER_BASELINE);
+		boldFont = boldRegularFont.deriveFont(Font.BOLD);
 		updateDisplays();
 
 		// Lay out the panel.
 		panel.setBorder(BorderFactory.createEmptyBorder(GAP_BETWEEN - 5, 0, GAP_BETWEEN - 5, 0));
 		panel.add(new JSeparator(JSeparator.VERTICAL), BorderLayout.LINE_START);
 		panel.add(actualAvailabilityDisplay, BorderLayout.CENTER);
+		panel.add(actualAvailabilityLabel, BorderLayout.NORTH);
 		panel.setPreferredSize(new Dimension(200, 150));
 
 		return panel;
 	}
 
 	protected String getActualAvailability() {
-		if (!addressSet)
-			return "Actual Availability.";
-
-		String eventName = eventNameField.getText();
-
-		return "<html><p align=center>" + " Actual Availability " + eventName + "<br>" + "</p></html>";
+		if (!isFieldSet)
+			return "Actual Availability";
+		String actualAvailability = actualAvailabilityLabel.getText();
+		return " Actual Availability " + actualAvailability;
 	}
 
 	/**
@@ -154,11 +158,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	protected void selectItLater(Component c) {
 		if (c instanceof JTextField) {
 			final JTextField ftf = (JTextField) c;
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					ftf.selectAll();
-				}
-			});
+			SwingUtilities.invokeLater(() -> ftf.selectAll());
 		}
 	}
 
@@ -167,7 +167,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
 			final int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
-			final int restOfEvents = appSystem.berechneRestOfEvents(e.getNumberOfTicket(), anzTicketToBuy);
+			final int restOfEvents = appSystem.calculateRestOfEventTicket(e.getNumberOfTicket(), anzTicketToBuy);
 			final float percentage = ((float)restOfEvents / e.getNumberOfTicket());
 
 			if (1 == anzViews) {
@@ -190,7 +190,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 		} else if (percentage <= ConstantPercentage.PERCENTAGE_5.getPercentage()
 				&& percentage > ConstantPercentage.PERCENTAGE_0.getPercentage()) {
 			c.setBackground(Color.YELLOW);
-		}else if (ConstantPercentage.PERCENTAGE_0.getPercentage() >= percentage) {
+		}else if (ConstantPercentage.PERCENTAGE_0.getPercentage() >= percentage || percentage < 0) {
 			if (c instanceof JLabel) {
 				actualAvailabilityDisplay.setBackground(Color.RED);
 				actualAvailabilityDisplay.setText("Sold out!");
@@ -209,6 +209,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 		System.out.println(anzViews);
 		this.anzViews = anzViews;
 		this.e = e;
+		actualAvailabilityLabel.setText("Actual Availability");
 		eventNameField.setText(e.getName());
 		eventDateField.setText(String.valueOf(e.getDate()).substring(0, 10));
 		ticketQuantityField.setText(String.valueOf(e.getNumberOfTicket()));
@@ -241,16 +242,19 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 		if (null == eventNameField) {
 			eventNameField = new JTextField();
 			eventNameField.setColumns(TEXTFIELD_COLUMN);
+			eventNameField.setEditable(false);
 			fields[fieldNum++] = eventNameField;
 		}
 		if (null == eventDateField) {
 			eventDateField = new JTextField();
 			eventDateField.setColumns(TEXTFIELD_COLUMN);
+			eventDateField.setEditable(false);
 			fields[fieldNum++] = eventDateField;
 		}
 		if (null == ticketQuantityField) {
 			ticketQuantityField = new JTextField();
 			ticketQuantityField.setColumns(TEXTFIELD_COLUMN);
+			ticketQuantityField.setEditable(false);
 			fields[fieldNum++] = ticketQuantityField;
 		}
 		if (null == availibilityField && anzViews == 1) {
@@ -277,9 +281,9 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 
 				public void warn() {
 					if(!ticketQuantityToBuyField.getText().isEmpty()) {
-					if (Integer.parseInt(ticketQuantityToBuyField.getText()) > 0) {
-						createButton().setEnabled(true);
-					}
+						if (Integer.parseInt(ticketQuantityToBuyField.getText()) > 0) {
+							createButton().setEnabled(true);
+						}
 					}else {
 						createButton().setEnabled(false);
 					}

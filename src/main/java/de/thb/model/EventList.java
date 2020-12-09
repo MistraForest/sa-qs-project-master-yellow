@@ -22,12 +22,14 @@ import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventList{
+public class EventList implements IEvent{
 
 	
 	public List<Event> events = new ArrayList<>();
 	public Event e = null;
-	
+
+
+	@Override
 	public List<Event> loadEvents(){
 		BufferedReader br = null;
 		try {
@@ -37,19 +39,19 @@ public class EventList{
 		}
 		try {
 		    String line = br.readLine();
-		    
+
 		    while (line != null) {
 		    	//Getting Event Attribut
 		    	final String[] eventAttributs= line.split(",");
-		    	
+
 		    	//creating Events
 		    	Event event = new Event();
 		    	event.setName(eventAttributs[0]);
 		    	event.setDate(LocalDate.parse(eventAttributs[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 		    	event.setNumberOfTicket(Integer.valueOf(eventAttributs[2]));
-		    	
+
 		    	events.add(event);
-		        
+
 		        line = br.readLine();
 		    }
 		}catch(Exception e) {
@@ -61,10 +63,11 @@ public class EventList{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}   
+		}
 		return events;
 	}
-	
+
+	@Override
 	public void setData(Event updatedEvent){
 		BufferedReader br = null;
 		FileReader fr = null;
@@ -117,7 +120,8 @@ public class EventList{
 			e.printStackTrace();
 		}
 	}
-	
+
+	@Override
 	public Event findByEventName(final String eventName) {
 		List<Event> events = loadEvents();
 		for(int i = 0; i < events.size(); i++) {

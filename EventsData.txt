@@ -1,22 +1,22 @@
-Personal Planners,2021-01-23,4
-Conference Moment,2021-01-23,50
+Personal Planners,2021-01-23,-15
+Conference Moment,2021-01-23,-6
 Copacabana,2020-12-23,1
-Design In The Details,2020-12-31,82
-Lucky Delight,2021-03-20,31
-Organization Science,2021-08-21,6
-Tradecraft Perfection,2021-10-13,1
-Planning Made Easy,2021-02-28,63
-Let’S Plan It,2022-01-23,40
-Limelight Events,2022-08-23,10
-Gals With A Plan,2021-06-16,20
-Planning Excellence,2021-04-05,55
-Last Minute Planning,2021-05-14,25
-Be The Plan Party Planners,2021-12-15,56
-Attention To Detail,2020-07-04,53
-Partners In Parties,2021-08-06,62
-Full Service Celebrations,2022-06-09,26
-Prestigious Parties,2021-01-15,33
-Nights Not Forgotten,2020-06-18,39
-Party Power,2021-11-07,22
-Experience Spectacular,2021-10-10,6
-Extraordinary Events,2021-10-17,8
+Design In The Details,2020-12-31,-45
+Lucky Delight,2021-03-20,-74
+Organization Science,2021-08-21,-1
+Tradecraft Perfection,2021-10-13,-1
+Planning Made Easy,2021-02-28,-100
+Let’S Plan It,2022-01-23,4002
+Limelight Events,2022-08-23,1
+Gals With A Plan,2021-06-16,1801
+Planning Excellence,2021-04-05,5550
+Last Minute Planning,2021-05-14,3
+Be The Plan Party Planners,2021-12-15,5650
+Attention To Detail,2020-07-04,5327
+Partners In Parties,2021-08-06,6250
+Full Service Celebrations,2022-06-09,2650
+Prestigious Parties,2021-01-15,3350
+Nights Not Forgotten,2020-06-18,50
+Party Power,2021-11-07,2250
+Experience Spectacular,2021-10-10,650
+Extraordinary Events,2021-10-17,3
