@@ -3,7 +3,6 @@ package de.thb.presenter;
 import de.thb.model.Event;
 import de.thb.model.EventList;
 import de.thb.model.IEvent;
-import de.thb.view.IObserver;
 
 import java.util.List;
 
