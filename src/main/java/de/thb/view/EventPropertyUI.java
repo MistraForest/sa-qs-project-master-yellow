@@ -41,9 +41,9 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	JButton button;
 	private final int GAP_BETWEEN = 7;
 	final static int TEXTFIELD_COLUMN = 5;
-	private Event e;
+	private Event event;
 	private int anzViews = 0;
-	private AppSystem appSystem = AppSystem.getIstance();
+	private IView appSystem = AppSystem.getIstance();
 
 	public EventPropertyUI(int anzViews) {
 		this.anzViews = anzViews;
@@ -88,16 +88,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	 * Called when the user clicks the button or presses Enter in a text field.
 	 */
 	public void actionPerformed(ActionEvent e) {
-		if ("clear".equals(e.getActionCommand())) {
-			isFieldSet = false;
-			eventNameField.setText("");
-			eventDateField.setText("");
-			availibilityField.setText("");
-			ticketQuantityField.setText("");
-		} else {
-			isFieldSet = true;
-		}
-		updateDisplays();
+
 	}
 
 	protected void updateDisplays() {
@@ -167,8 +158,8 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
 			final int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
-			final int restOfEvents = appSystem.calculateRestOfEventTicket(e.getNumberOfTicket(), anzTicketToBuy);
-			final float percentage = ((float)restOfEvents / e.getNumberOfTicket());
+			final int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
+			final float percentage = ((float)restOfEvents / event.getNumberOfTicket());
 
 			if (1 == anzViews) {
 				availibilityField.setText(String.valueOf(restOfEvents));
@@ -178,8 +169,8 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 				actualAvailabilityDisplay.setOpaque(true);
 				setHighlight(actualAvailabilityDisplay, percentage);
 			}
-			e.setRestOfTicket(restOfEvents);
-			appSystem.setData(e);
+			event.setRestOfTicket(restOfEvents);
+			appSystem.setData(event);
 		}
 	}
 
@@ -208,7 +199,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	public void setData(final Event e, int anzViews) {
 		System.out.println(anzViews);
 		this.anzViews = anzViews;
-		this.e = e;
+		this.event = e;
 		actualAvailabilityLabel.setText("Actual Availability");
 		eventNameField.setText(e.getName());
 		eventDateField.setText(String.valueOf(e.getDate()).substring(0, 10));

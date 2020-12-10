@@ -3,10 +3,11 @@ package de.thb.presenter;
 import de.thb.model.Event;
 import de.thb.model.EventList;
 import de.thb.model.IEvent;
+import de.thb.view.IView;
 
 import java.util.List;
 
-public class AppSystem {
+public class AppSystem implements IView {
 
     private static IEvent eventList;
     private static AppSystem INSTANCE;
@@ -20,7 +21,8 @@ public class AppSystem {
         }
         return INSTANCE;
     }
-    
+
+    @Override
     public int calculateRestOfEventTicket(int numberOfTicket, int numberOfTicketToBuy) {
 		 return (numberOfTicket - numberOfTicketToBuy);
     }
@@ -29,8 +31,9 @@ public class AppSystem {
         return eventList.loadEvents();
     }
 
-    public void setData(Event e){
-    	eventList.setData(e);
+    @Override
+    public void setData(Event event){
+    	eventList.setData(event);
     }
 
     public Event findByEventName(final String eventName) {

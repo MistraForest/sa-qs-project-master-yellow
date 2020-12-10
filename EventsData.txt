@@ -1,16 +1,16 @@
-Personal Planners,2021-01-23,-15
-Conference Moment,2021-01-23,-6
-Copacabana,2020-12-23,1
-Design In The Details,2020-12-31,-45
-Lucky Delight,2021-03-20,-74
-Organization Science,2021-08-21,-1
-Tradecraft Perfection,2021-10-13,-1
-Planning Made Easy,2021-02-28,-100
-Let’S Plan It,2022-01-23,4002
-Limelight Events,2022-08-23,1
-Gals With A Plan,2021-06-16,1801
-Planning Excellence,2021-04-05,5550
-Last Minute Planning,2021-05-14,3
+Personal Planners,2021-01-23,-631
+Conference Moment,2021-01-23,89
+Copacabana,2020-12-23,589
+Design In The Details,2020-12-31,375
+Lucky Delight,2021-03-20,748
+Organization Science,2021-08-21,1878
+Tradecraft Perfection,2021-10-13,-100
+Planning Made Easy,2021-02-28,1008
+Let’S Plan It,2022-01-23,40028
+Limelight Events,2022-08-23,1852
+Gals With A Plan,2021-06-16,18018
+Planning Excellence,2021-04-05,55508
+Last Minute Planning,2021-05-14,3878
 Be The Plan Party Planners,2021-12-15,5650
 Attention To Detail,2020-07-04,5327
 Partners In Parties,2021-08-06,6250
