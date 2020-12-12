@@ -24,6 +24,7 @@ public class Event {
 	}
 
 	public void setRestOfTicket(int restOfTicket) {
+    	if (restOfTicket < 0) restOfTicket = 0;
 		this.restOfTicket = restOfTicket;
 	}
     

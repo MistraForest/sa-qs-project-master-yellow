@@ -13,7 +13,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import de.thb.model.ConstantPercentage;
 import de.thb.model.Event;
 import de.thb.presenter.AppSystem;
 
@@ -157,10 +156,11 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 		final String valueOfFieldTicketToBuy = ticketQuantityToBuyField.getText();
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
-			final int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
-			final int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
-			final float percentage = ((float)restOfEvents / event.getNumberOfTicket());
-
+			int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
+			int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
+			float percentage = ((float)restOfEvents / event.getNumberOfTicket());
+//			event.setRestOfTicket(restOfEvents);
+			if (percentage == 0.0f) event.setNumberOfTicket((int)percentage);
 			if (1 == anzViews) {
 				availibilityField.setText(String.valueOf(restOfEvents));
 				setHighlight(availibilityField, percentage);
@@ -170,6 +170,9 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 				setHighlight(actualAvailabilityDisplay, percentage);
 			}
 			event.setRestOfTicket(restOfEvents);
+			event.setNumberOfTicket(restOfEvents);
+
+
 			appSystem.setData(event);
 		}
 	}
@@ -185,6 +188,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 			if (c instanceof JLabel) {
 				actualAvailabilityDisplay.setBackground(Color.RED);
 				actualAvailabilityDisplay.setText("Sold out!");
+				event.setNumberOfTicket(0);
 			} else if (c instanceof JTextField) {
 				availibilityField.setBackground(Color.RED);
 				availibilityField.setText("Sold out!");

@@ -1,4 +1,4 @@
-package de.thb.model;
+package de.thb.view;
 
 public enum ConstantPercentage {
     PERCENTAGE_10(0.1f),

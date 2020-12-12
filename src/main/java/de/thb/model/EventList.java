@@ -93,7 +93,7 @@ public class EventList implements IEvent{
 				final String[] eventAttributs= line.split(",");
 				
 				//Updating Data
-				if(line.contains(updatedEvent.getName()) && updatedEvent.getRestOfTicket() != 0){
+				if(line.contains(updatedEvent.getName()) ){
 					eventAttributs[2] = String.valueOf(updatedEvent.getRestOfTicket());
 
 					line = eventAttributs[0] + "," + eventAttributs[1] + "," + eventAttributs[2];
