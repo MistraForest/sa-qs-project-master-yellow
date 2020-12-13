@@ -1,5 +1,6 @@
 package de.thb.presenter;
 
+import de.thb.model.ConstantPercentage;
 import de.thb.model.Event;
 import de.thb.model.EventList;
 import de.thb.model.IEvent;
@@ -39,6 +40,21 @@ public class AppSystem implements IView {
     @Override
     public float calculatePercentage(int restOfEvents, int actual) {
         return (float)restOfEvents / actual;
+    }
+
+    @Override
+    public float getPercentageTen() {
+        return ConstantPercentage.PERCENTAGE_10.getPercentage();
+    }
+
+    @Override
+    public float getPercentageFive() {
+        return ConstantPercentage.PERCENTAGE_5.getPercentage();
+    }
+
+    @Override
+    public float getPercentageZero() {
+        return ConstantPercentage.PERCENTAGE_0.getPercentage();
     }
 
     public Event findByEventName(final String eventName) {

@@ -4,8 +4,6 @@ import de.thb.model.Event;
 import de.thb.presenter.AppSystem;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 
