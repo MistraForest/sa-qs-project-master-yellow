@@ -17,6 +17,6 @@ Partners In Parties,2021-08-06,6000
 Full Service Celebrations,2022-06-09,2000
 Prestigious Parties,2021-01-15,0
 Nights Not Forgotten,2020-06-18,50738
-Party Power,2021-11-07,248
+Party Power,2021-11-07,0
 Experience Spectacular,2021-10-10,0
 Extraordinary Events,2021-10-17,16982

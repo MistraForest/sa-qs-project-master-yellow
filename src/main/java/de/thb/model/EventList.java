@@ -7,16 +7,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
+import de.thb.view.IView;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +22,8 @@ public class EventList implements IEvent{
 
 	
 	public List<Event> events = new ArrayList<>();
-	public Event e = null;
+	private IView iView;
+	public Event event = null;
 
 
 	@Override
@@ -126,9 +123,9 @@ public class EventList implements IEvent{
 		List<Event> events = loadEvents();
 		for(int i = 0; i < events.size(); i++) {
 			if(eventName.equals(events.get(i).getName())) {
-				e = events.get(i);
+				event = events.get(i);
 			}
 		}
-    	return e;
+    	return event;
     }
 }

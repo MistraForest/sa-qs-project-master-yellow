@@ -21,19 +21,19 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	JTextField eventNameField, ticketQuantityField, ticketQuantityToBuyField, availibilityField, eventDateField;
-	boolean isFieldSet = false;
+	private JTextField eventNameField, ticketQuantityField, ticketQuantityToBuyField, availibilityField, eventDateField;
+	private boolean isFieldSet = false;
 	Font regularFont, boldRegularFont, italicFont, boldFont;
-	JLabel actualAvailabilityDisplay;
-	JLabel actualAvailabilityLabel = new JLabel();
-	JPanel leftHalf;
-	JButton button;
-	private EventUtilitiesUI eventUtilitiesUI;
+	private JLabel actualAvailabilityDisplay;
+	private JLabel actualAvailabilityLabel = new JLabel();
+	private JPanel leftHalf;
+	private JButton button;
+	private final EventUtilitiesUI eventUtilitiesUI;
 	private final int GAP_BETWEEN = 7;
-	final static int TEXTFIELD_COLUMN = 5;
+	private final static int TEXTFIELD_COLUMN = 5;
 	private Event event;
 	private int anzViews;
-	private IView appSystem = AppSystem.getIstance();
+	private final IView appSystem = AppSystem.getIstance();
 
 	public EventPropertyUI(int anzViews) {
 		eventUtilitiesUI = new EventUtilitiesUI();
@@ -79,7 +79,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 		return button;
 	}
 	private void showDialogWhenFieldsEmpty() {
-		JOptionPane.showMessageDialog(this, "Select first an Event.", "Warning", JOptionPane.WARNING_MESSAGE);
+		JOptionPane.showMessageDialog(this, "Select first an event bevor checking out.", "Warning", JOptionPane.WARNING_MESSAGE);
 	}
 	/**
 	 * Called when the user clicks the button or presses Enter in a text field.
@@ -107,7 +107,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 		actualAvailabilityLabel.setHorizontalAlignment(JLabel.CENTER);
 		boldRegularFont = actualAvailabilityDisplay.getFont().deriveFont(Font.ITALIC, 45.0f);
 		regularFont = actualAvailabilityLabel.getFont().deriveFont(Font.ITALIC, 16.0f);
-		italicFont = regularFont.deriveFont(Font.CENTER_BASELINE);
+		italicFont = regularFont.deriveFont(Font.BOLD);
 		boldFont = boldRegularFont.deriveFont(Font.BOLD);
 		updateDisplays();
 
@@ -128,14 +128,14 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 		return " Actual Availability " + actualAvailability;
 	}
 
-	private void getHighLight() throws Exception {
+	private void getHighLight() {
 		final String valueOfFieldTicketToBuy = ticketQuantityToBuyField.getText();
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
 			int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
 			int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
 			float percentage = appSystem.calculatePercentage(restOfEvents, event.getNumberOfTicket());
-			if (percentage == ConstantPercentage.PERCENTAGE_0.getPercentage()) {
+			if (percentage == getPercentageZero()) {
 				event.setNumberOfTicket((int)percentage);
 			}
 			if (1 == anzViews) {
@@ -155,13 +155,13 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 	}
 
 	private void setHighlight(Component c, float percentage) {
-		if (percentage <= ConstantPercentage.PERCENTAGE_10.getPercentage()
-				&& percentage > ConstantPercentage.PERCENTAGE_5.getPercentage()) {
+		if (percentage <= getPercentageTen()
+				&& percentage > getPercentageFive()) {
 			c.setBackground(Color.GREEN);
-		} else if (percentage <= ConstantPercentage.PERCENTAGE_5.getPercentage()
-				&& percentage > ConstantPercentage.PERCENTAGE_0.getPercentage()) {
+		} else if (percentage <= getPercentageFive()
+				&& percentage > getPercentageZero()) {
 			c.setBackground(Color.YELLOW);
-		}else if (ConstantPercentage.PERCENTAGE_0.getPercentage() >= percentage || percentage < 0) {
+		}else if (getPercentageZero() >= percentage || percentage < 0) {
 			if (c instanceof JLabel) {
 				actualAvailabilityDisplay.setBackground(Color.RED);
 				actualAvailabilityDisplay.setText("Sold out!");
@@ -172,6 +172,18 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 			}
 		}
 	}
+	private float getPercentageTen() {
+		return appSystem.getPercentageTen();
+	}
+
+	private float getPercentageFive() {
+		return appSystem.getPercentageFive();
+	}
+
+	private float getPercentageZero() {
+		return appSystem.getPercentageZero();
+	}
+
 
 	public void setData(final Event e, int anzViews) {
 		System.out.println(anzViews);
@@ -257,7 +269,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 							getButton().setEnabled(false);
 						}
 					} catch (NumberFormatException e) {
-						System.out.println("Wrong value "+ e.getLocalizedMessage());;
+						System.out.println("Wrong value "+ e.getLocalizedMessage());
 					}
 				}
 			});
