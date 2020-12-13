@@ -1,18 +1,10 @@
 package de.thb.view;
 
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.BorderFactory;
-import javax.swing.JSeparator;
-import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import de.thb.model.ConstantPercentage;
 import de.thb.model.Event;
 import de.thb.presenter.AppSystem;
 
@@ -23,10 +15,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
-public class EventPropertyUI extends JPanel implements ActionListener, FocusListener {
+public class EventPropertyUI extends JPanel implements ActionListener {
 	/**
 	 *
 	 */
@@ -38,13 +28,15 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	JLabel actualAvailabilityLabel = new JLabel();
 	JPanel leftHalf;
 	JButton button;
+	private EventUtilitiesUI eventUtilitiesUI;
 	private final int GAP_BETWEEN = 7;
 	final static int TEXTFIELD_COLUMN = 5;
 	private Event event;
-	private int anzViews = 0;
+	private int anzViews;
 	private IView appSystem = AppSystem.getIstance();
 
 	public EventPropertyUI(int anzViews) {
+		eventUtilitiesUI = new EventUtilitiesUI();
 		this.anzViews = anzViews;
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		add(createLeftHalf());
@@ -66,30 +58,35 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 			};
 			leftHalf.setLayout(new BoxLayout(leftHalf, BoxLayout.PAGE_AXIS));
 			leftHalf.add(createEntryFields());
-			leftHalf.add(createButton());
+			leftHalf.add(getButton());
 		}
 		return leftHalf;
 	}
 
-	private JButton createButton() {
-		EventUtilitiesUI eventUtilitiesUI = new EventUtilitiesUI();
+	private JButton getButton() {
 		if (null == button) {
-			button = eventUtilitiesUI.createButtons("Buy Tickets", GAP_BETWEEN);
+			button = new EventUtilitiesUI().createButtons("Buy Tickets", GAP_BETWEEN);
 			button.setEnabled(false);
 			button.addActionListener(e -> {
-				getHighLight();
+				try {
+					getHighLight();
+				} catch (Exception exception) {
+					showDialogWhenFieldsEmpty();
+					System.out.println(exception.getLocalizedMessage()+": Event fields are empty"+ " when heating " +e.getActionCommand());
+				}
 			});
 		}
 		return button;
 	}
-
+	private void showDialogWhenFieldsEmpty() {
+		JOptionPane.showMessageDialog(this, "Select first an Event.", "Warning", JOptionPane.WARNING_MESSAGE);
+	}
 	/**
 	 * Called when the user clicks the button or presses Enter in a text field.
 	 */
 	public void actionPerformed(ActionEvent e) {
 
 	}
-
 	protected void updateDisplays() {
 		actualAvailabilityDisplay.setText(getActualAvailability());
 		actualAvailabilityLabel.setText("");
@@ -131,36 +128,16 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 		return " Actual Availability " + actualAvailability;
 	}
 
-	/**
-	 * Called when one of the fields gets the focus so that the focused field is
-	 * selectable.
-	 */
-	public void focusGained(FocusEvent e) {
-		Component c = e.getComponent();
-		if (c instanceof JTextField) {
-			selectItLater(c);
-		} else if (c instanceof JTextField) {
-			((JTextField) c).selectAll();
-		}
-	}
-
-	// Workaround for formatted text field focus side effects.
-	protected void selectItLater(Component c) {
-		if (c instanceof JTextField) {
-			final JTextField ftf = (JTextField) c;
-			SwingUtilities.invokeLater(() -> ftf.selectAll());
-		}
-	}
-
-	private void getHighLight() {
+	private void getHighLight() throws Exception {
 		final String valueOfFieldTicketToBuy = ticketQuantityToBuyField.getText();
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
 			int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
 			int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
-			float percentage = ((float)restOfEvents / event.getNumberOfTicket());
-//			event.setRestOfTicket(restOfEvents);
-			if (percentage == 0.0f) event.setNumberOfTicket((int)percentage);
+			float percentage = appSystem.calculatePercentage(restOfEvents, event.getNumberOfTicket());
+			if (percentage == ConstantPercentage.PERCENTAGE_0.getPercentage()) {
+				event.setNumberOfTicket((int)percentage);
+			}
 			if (1 == anzViews) {
 				availibilityField.setText(String.valueOf(restOfEvents));
 				setHighlight(availibilityField, percentage);
@@ -180,7 +157,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 	private void setHighlight(Component c, float percentage) {
 		if (percentage <= ConstantPercentage.PERCENTAGE_10.getPercentage()
 				&& percentage > ConstantPercentage.PERCENTAGE_5.getPercentage()) {
-			c.setBackground(Color.green);
+			c.setBackground(Color.GREEN);
 		} else if (percentage <= ConstantPercentage.PERCENTAGE_5.getPercentage()
 				&& percentage > ConstantPercentage.PERCENTAGE_0.getPercentage()) {
 			c.setBackground(Color.YELLOW);
@@ -195,10 +172,6 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 			}
 		}
 	}
-
-	// Needed for FocusListener interface.
-	public void focusLost(FocusEvent e) {
-	} // ignore
 
 	public void setData(final Event e, int anzViews) {
 		System.out.println(anzViews);
@@ -259,7 +232,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 			fields[fieldNum++] = availibilityField;
 		}
 		if (null == ticketQuantityToBuyField) {
-			ticketQuantityToBuyField = new JTextField();
+			ticketQuantityToBuyField = eventUtilitiesUI.createdHintextField("Enter a number");
 			ticketQuantityToBuyField.setColumns(TEXTFIELD_COLUMN);
 			ticketQuantityToBuyField.getDocument().addDocumentListener(new DocumentListener() {
 				public void changedUpdate(DocumentEvent e) {
@@ -275,17 +248,22 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 				}
 
 				public void warn() {
-					if(!ticketQuantityToBuyField.getText().isEmpty()) {
-						if (Integer.parseInt(ticketQuantityToBuyField.getText()) > 0) {
-							createButton().setEnabled(true);
+					try {
+						if(!ticketQuantityToBuyField.getText().isEmpty()) {
+							if (Integer.parseInt(ticketQuantityToBuyField.getText()) > 0) {
+								getButton().setEnabled(true);
+							}
+						}else {
+							getButton().setEnabled(false);
 						}
-					}else {
-						createButton().setEnabled(false);
+					} catch (NumberFormatException e) {
+						System.out.println("Wrong value "+ e.getLocalizedMessage());;
 					}
 				}
 			});
 			fields[fieldNum++] = ticketQuantityToBuyField;
 		}
+
 
 		// Associate label/field pairs, add everything,
 		// and lay it out.
@@ -299,7 +277,7 @@ public class EventPropertyUI extends JPanel implements ActionListener, FocusList
 			JTextField actualField = (JTextField) fields[i];
 
 			actualField.addActionListener(this);
-			actualField.addFocusListener(this);
+//			actualField.addFocusListener(this);
 		}
 		EventUtilitiesUI.buildCompactGrid(panel, labelStrings.length, 2, 0, 0, 0, GAP_BETWEEN);
 		return panel;

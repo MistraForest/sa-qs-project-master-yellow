@@ -1,11 +1,15 @@
 package de.thb.view;
 
 
+import lombok.Data;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 
 public class EventUtilitiesUI extends DefaultListCellRenderer{
@@ -89,33 +93,22 @@ public class EventUtilitiesUI extends DefaultListCellRenderer{
      * @see javax.swing.DefaultListCellRenderer
      *
      */
+    @Data
     private static class EventListCellRenderer extends DefaultListCellRenderer {
+        private Color listColor;
+        public EventListCellRenderer(Color listColor){
+            this.listColor = listColor;
+        }
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (index % 2 == 0) setBackground(Color.decode("#E0FFFF"));
+            if (index % 2 == 0) setBackground(listColor);
             else setBackground(Color.WHITE);
             return this;
         }
     }
 
-    private static class ColumnColorRenderer extends DefaultTableCellRenderer {
-        Color backgroundColor;
-        public ColumnColorRenderer(Color backgroundColor) {
-            super();
-            this.backgroundColor = backgroundColor;
-        }
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,   boolean hasFocus, int row, int column) {
-            Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            cell.setBackground(backgroundColor);
-            return cell;
-        }
-    }
-
-    public static TableCellRenderer setColumnColor(Color color){
-        return new ColumnColorRenderer(color);
-    }
-    public static ListCellRenderer getCellRenderer(){
-        return new EventListCellRenderer();
+    public static ListCellRenderer getCellRenderer(Color listColor){
+        return new EventListCellRenderer(listColor);
     }
 
     public JButton createButtons(String label, int padding) {
@@ -128,5 +121,42 @@ public class EventUtilitiesUI extends DefaultListCellRenderer{
         // up for the default gap FlowLayout provides.
         panel.setBorder(BorderFactory.createEmptyBorder(padding*2, 0, 0, padding - 5));
         return button;
+    }
+
+    public JTextField createdHintextField(String hintText){
+        return new HintTextField(hintText);
+    }
+
+    class HintTextField extends JTextField implements FocusListener {
+
+        private final String hint;
+        private boolean showingHint;
+
+        public HintTextField(final String hint) {
+            super(hint);
+            this.hint = hint;
+            this.showingHint = true;
+            super.addFocusListener(this);
+        }
+
+        @Override
+        public void focusGained(FocusEvent e) {
+            if(this.getText().isEmpty()) {
+                super.setText("");
+                showingHint = false;
+            }
+        }
+        @Override
+        public void focusLost(FocusEvent e) {
+            if(this.getText().isEmpty()) {
+                super.setText(hint);
+                showingHint = true;
+            }
+        }
+
+        @Override
+        public String getText() {
+            return showingHint ? "" : super.getText();
+        }
     }
 }
