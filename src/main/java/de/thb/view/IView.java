@@ -5,4 +5,6 @@ import de.thb.model.Event;
 public interface IView {
     int calculateRestOfEventTicket(int numberOfTicket, int numberOfTicketToBuy);
     void setData(Event event);
+
+    float calculatePercentage(int restOfEvents, int actual);
 }

@@ -32,7 +32,9 @@ public class DashboardUI extends JPanel {
 
 		// JList mit Einträgen wird erstellt
 		eventListField = new JList(eventListModel);
-		eventListField.setCellRenderer(EventUtilitiesUI.getCellRenderer());
+		if (1 == anzViews)
+			eventListField.setCellRenderer(EventUtilitiesUI.getCellRenderer(Color.decode("#fce1fd")));
+		else eventListField.setCellRenderer(EventUtilitiesUI.getCellRenderer(Color.decode("#E0FFFF")));
 
 		for (Event event : events) {
 			eventListModel.addElement(event.getName());
@@ -45,11 +47,7 @@ public class DashboardUI extends JPanel {
 		add(scrollPaneForEvents);
 		add(eventPropertyUI);
 
-		eventListField.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent evt) {
-				jList1ValueChanged(anzViews);
-			}
-		});
+		eventListField.addListSelectionListener(evt -> jList1ValueChanged(anzViews));
 
 	}
 

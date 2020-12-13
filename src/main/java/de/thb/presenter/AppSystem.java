@@ -36,6 +36,11 @@ public class AppSystem implements IView {
     	eventList.setData(event);
     }
 
+    @Override
+    public float calculatePercentage(int restOfEvents, int actual) {
+        return (float)restOfEvents / actual;
+    }
+
     public Event findByEventName(final String eventName) {
     	return eventList.findByEventName(eventName);
     }
