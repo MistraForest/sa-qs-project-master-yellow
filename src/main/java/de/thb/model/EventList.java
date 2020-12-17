@@ -1,36 +1,45 @@
 package de.thb.model;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import de.thb.view.IEventObserver;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import de.thb.view.IView;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class EventList implements IEvent{
+public class EventList implements IEvent, IEventObservable, handelEvent{
 
+	public static final Logger LOGGER = Logger.getLogger(EventList.class.getName());
 	
-	public List<Event> events = new ArrayList<>();
-	private IView iView;
-	public Event event = null;
+	private List<Event> events = new ArrayList<>();
+	final String FILE_NAME = "EventsData.txt";
+	private List<IEventObserver> iEventObservers;
+	private Event event;
+	private static EventList INSTANCE;
 
+	private EventList(){
+		iEventObservers = new ArrayList<>();
+	}
+
+	public synchronized static EventList getInstance(){
+		if (INSTANCE == null){
+			INSTANCE = new EventList();
+		}
+		return INSTANCE;
+	}
 
 	@Override
 	public List<Event> loadEvents(){
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader("EventsData.txt"));
+			br = new BufferedReader(new FileReader(FILE_NAME));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -45,7 +54,7 @@ public class EventList implements IEvent{
 		    	Event event = new Event();
 		    	event.setName(eventAttributs[0]);
 		    	event.setDate(LocalDate.parse(eventAttributs[1], DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-		    	event.setNumberOfTicket(Integer.valueOf(eventAttributs[2]));
+		    	event.setNumberOfTicket(Integer.parseInt(eventAttributs[2]));
 
 		    	events.add(event);
 
@@ -62,6 +71,16 @@ public class EventList implements IEvent{
 			}
 		}
 		return events;
+	}
+
+	@Override
+	public List<Event> getLoadedEvents() {
+		return loadEvents();
+	}
+
+	@Override
+	public void writeUpdatedData(Event event) {
+		setData(event);
 	}
 
 	@Override
@@ -119,13 +138,49 @@ public class EventList implements IEvent{
 	}
 
 	@Override
-	public Event findByEventName(final String eventName) {
+	public Event findByEventName(String eventName) {
+		LOGGER.info("Begin: "+ "findByEventName()");
 		List<Event> events = loadEvents();
 		for(int i = 0; i < events.size(); i++) {
 			if(eventName.equals(events.get(i).getName())) {
 				event = events.get(i);
 			}
 		}
+		LOGGER.info("End: "+ "findByEventName()"+ eventName);
     	return event;
     }
+
+	@Override
+	public float getPercentageTen() {
+		return ConstantPercentage.PERCENTAGE_10.getPercentage();
+	}
+
+	@Override
+	public float getPercentageFive() {
+		return ConstantPercentage.PERCENTAGE_5.getPercentage();
+	}
+
+	@Override
+	public float getPercentageZero() {
+		return ConstantPercentage.PERCENTAGE_0.getPercentage();
+	}
+
+
+	@Override
+	public void registerObserver(IEventObserver observer) {
+		iEventObservers.add(observer);
+	}
+
+	@Override
+	public void removeObserver(IEventObserver observer) {
+		iEventObservers.remove(observer);
+	}
+
+	@Override
+	public void notifyObservers() {
+		for (IEventObserver observer: iEventObservers){
+			observer.update(event);
+		}
+		LOGGER.info("End: "+ "notifyObservers()");
+	}
 }

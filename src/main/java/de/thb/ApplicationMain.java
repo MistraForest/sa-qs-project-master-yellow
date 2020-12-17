@@ -1,5 +1,6 @@
 package de.thb;
 
+import de.thb.presenter.AppSystem;
 import de.thb.view.DashboardUI;
 
 import javax.swing.*;
@@ -14,19 +15,16 @@ public class ApplicationMain extends JPanel {
 
         //Define the tab component to hold two views
         JTabbedPane tabbedPaneViewChooser = new JTabbedPane();
+        DashboardUI dashboardUI = (DashboardUI) AppSystem.getInstance().getUserInterface(anzViews);
 
-        tabbedPaneViewChooser.addTab("Dashboard", null, new DashboardUI(anzViews),
-                "Dashboard");
-
+        tabbedPaneViewChooser.addTab("Dashboard", null, dashboardUI, "Dashboard");
         tabbedPaneViewChooser.setMnemonicAt(0, KeyEvent.VK_1);
 
-        //        //Add the tabbed pane to this panel.
+        //Add the tabbed pane to this panel.
         add(tabbedPaneViewChooser);
-
         //The following line enables to use scrolling tabs.
         tabbedPaneViewChooser.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
-
 
 
     /**
@@ -59,12 +57,9 @@ public class ApplicationMain extends JPanel {
     public static void main(String[] args) {
         //Schedule a job for the event dispatch thread:
         //creating and showing this application's GUI.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.TRUE);
-                createAndShowGUI();
-            }
+        SwingUtilities.invokeLater(() -> {
+            UIManager.put("swing.boldMetal", Boolean.TRUE);
+            createAndShowGUI();
         });
     }
 

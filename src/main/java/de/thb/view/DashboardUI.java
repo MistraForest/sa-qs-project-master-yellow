@@ -1,28 +1,33 @@
 package de.thb.view;
 
 import de.thb.model.Event;
+import de.thb.model.EventList;
 import de.thb.presenter.AppSystem;
+import lombok.Data;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class DashboardUI extends JPanel {
+@Data
+public class DashboardUI extends JPanel implements IEventObserver {
 
 	private AppSystem appSystem;
 	private DefaultListModel eventListModel;
 	private JList eventListField;
 	private EventPropertyUI eventPropertyUI;
+	private EventList eventList;
 
 
-	public DashboardUI(int anzViews) {
+	public DashboardUI(int anzViews, EventList eventList) {
 
 		setLayout(new GridLayout(0, 1, 5, 10));
 		setBounds(20, 20, 60, 300);
 		JScrollPane scrollPaneForEvents = new JScrollPane();
 
-		appSystem = AppSystem.getIstance();
-		eventPropertyUI = new EventPropertyUI(anzViews);
+		this.eventList = eventList;
+		appSystem = AppSystem.getInstance();
+		eventPropertyUI = new EventPropertyUI(anzViews, eventList);
 		List<Event> events = appSystem.getEvents();
 
 		// DefaultListModell wird erzeugt
@@ -50,8 +55,13 @@ public class DashboardUI extends JPanel {
 	}
 
 	private void jList1ValueChanged(int anzViews) {
-		final String selectedValue = (String) eventListField.getSelectedValue();
-		final Event e = appSystem.findByEventName(selectedValue);
-		eventPropertyUI.setData(e,anzViews);
+		String selectedValue = (String) eventListField.getSelectedValue();
+		final Event eventData = appSystem.findByEventName(selectedValue);
+		eventPropertyUI.updateUIWithData(eventData,anzViews);
+	}
+
+	@Override
+	public void update(Event post) {
+
 	}
 }

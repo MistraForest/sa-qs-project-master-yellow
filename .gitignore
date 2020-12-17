@@ -1,7 +1,7 @@
 HELP.md
 target/
 
-.txt
+
 
 pom.xml.tag
 pom.xml.releaseBackup
@@ -44,3 +44,4 @@ build/
 ### VS Code ###
 .vscode/
 /bin/
+.txt
