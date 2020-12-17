@@ -5,7 +5,7 @@ public enum ConstantPercentage {
     PERCENTAGE_5(0.05f),
     PERCENTAGE_0(0.0f);
 
-    private float percentage;
+    private final float percentage;
 
     ConstantPercentage(float percentage) {
         this.percentage = percentage;

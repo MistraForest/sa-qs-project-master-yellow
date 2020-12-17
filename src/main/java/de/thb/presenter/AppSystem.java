@@ -1,11 +1,12 @@
 package de.thb.presenter;
 
-import de.thb.model.ConstantPercentage;
 import de.thb.model.Event;
 import de.thb.model.EventList;
 import de.thb.model.IEvent;
+import de.thb.view.DashboardUI;
 import de.thb.view.IView;
 
+import javax.swing.*;
 import java.util.List;
 
 public class AppSystem implements IView {
@@ -14,9 +15,9 @@ public class AppSystem implements IView {
     private static AppSystem INSTANCE;
     
     private AppSystem(IEvent eventList) {
-        this.eventList = new EventList();
+        this.eventList = EventList.getInstance();
     }
-    public static AppSystem getIstance(){
+    public synchronized static AppSystem getInstance(){
         if (INSTANCE == null){
             INSTANCE = new AppSystem(eventList);
         }
@@ -29,12 +30,12 @@ public class AppSystem implements IView {
     }
 
     public List<Event> getEvents() {
-        return eventList.loadEvents();
+        return eventList.getLoadedEvents();
     }
 
     @Override
     public void setData(Event event){
-    	eventList.setData(event);
+    	eventList.writeUpdatedData(event);
     }
 
     @Override
@@ -44,22 +45,31 @@ public class AppSystem implements IView {
 
     @Override
     public float getPercentageTen() {
-        return ConstantPercentage.PERCENTAGE_10.getPercentage();
+        return eventList.getPercentageTen();
     }
 
     @Override
     public float getPercentageFive() {
-        return ConstantPercentage.PERCENTAGE_5.getPercentage();
+        return eventList.getPercentageFive();
     }
 
     @Override
     public float getPercentageZero() {
-        return ConstantPercentage.PERCENTAGE_0.getPercentage();
+        return eventList.getPercentageZero();
     }
 
-    public Event findByEventName(final String eventName) {
+    @Override
+    public JComponent getUserInterface(int anzViews) {
+        EventList eventList = EventList.getInstance();
+
+        DashboardUI dashboardUI = new DashboardUI(anzViews, eventList);
+        eventList.registerObserver(dashboardUI);
+        eventList.notifyObservers();
+        return dashboardUI;
+    }
+
+    public Event findByEventName(String eventName) {
     	return eventList.findByEventName(eventName);
     }
-
 
 }

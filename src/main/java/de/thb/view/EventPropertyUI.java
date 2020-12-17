@@ -1,22 +1,22 @@
 package de.thb.view;
 
+import de.thb.model.Event;
+import de.thb.model.EventList;
+import de.thb.presenter.AppSystem;
+import lombok.Data;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import de.thb.model.ConstantPercentage;
-import de.thb.model.Event;
-import de.thb.presenter.AppSystem;
-
-import java.awt.Font;
-import java.awt.Dimension;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Logger;
 
-public class EventPropertyUI extends JPanel implements ActionListener {
+@Data
+public class EventPropertyUI extends JPanel implements ActionListener, IEventObserver {
+
+	public static final Logger LOGGER = Logger.getLogger(EventPropertyUI.class.getName());
 	/**
 	 *
 	 */
@@ -24,7 +24,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 	private JTextField eventNameField, ticketQuantityField, ticketQuantityToBuyField, availibilityField, eventDateField;
 	private boolean isFieldSet = false;
 	Font regularFont, boldRegularFont, italicFont, boldFont;
-	private JLabel actualAvailabilityDisplay;
+	private JLabel actualAvailabilityDisplay = new JLabel();
 	private JLabel actualAvailabilityLabel = new JLabel();
 	private JPanel leftHalf;
 	private JButton button;
@@ -32,12 +32,16 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 	private final int GAP_BETWEEN = 7;
 	private final static int TEXTFIELD_COLUMN = 5;
 	private Event event;
+	private EventList eventList;
 	private int anzViews;
-	private final IView appSystem = AppSystem.getIstance();
+	private final IView appSystem = AppSystem.getInstance();
 
-	public EventPropertyUI(int anzViews) {
+
+	public EventPropertyUI(int anzViews, EventList eventList) {
+		this.eventList = eventList;
 		eventUtilitiesUI = new EventUtilitiesUI();
 		this.anzViews = anzViews;
+
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		add(createLeftHalf());
 		if (2 == this.anzViews) {
@@ -71,15 +75,15 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 				try {
 					getHighLight();
 				} catch (Exception exception) {
-					showDialogWhenFieldsEmpty();
+					showDialog("Select first an event to check out.");
 					System.out.println(exception.getLocalizedMessage()+": Event fields are empty"+ " when heating " +e.getActionCommand());
 				}
 			});
 		}
 		return button;
 	}
-	private void showDialogWhenFieldsEmpty() {
-		JOptionPane.showMessageDialog(this, "Select first an event bevor checking out.", "Warning", JOptionPane.WARNING_MESSAGE);
+	private void showDialog(String message) {
+		JOptionPane.showMessageDialog(this, message, "Warning", JOptionPane.WARNING_MESSAGE);
 	}
 	/**
 	 * Called when the user clicks the button or presses Enter in a text field.
@@ -133,8 +137,8 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 
 		if (!valueOfFieldTicketToBuy.isEmpty()) {
 			int anzTicketToBuy = Integer.parseInt(valueOfFieldTicketToBuy);
-			int restOfEvents = appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), anzTicketToBuy);
-			float percentage = appSystem.calculatePercentage(restOfEvents, event.getNumberOfTicket());
+			int restOfEvents = getRestOfEvents(anzTicketToBuy);
+			float percentage = getPercentage(restOfEvents);
 			if (percentage == getPercentageZero()) {
 				event.setNumberOfTicket((int)percentage);
 			}
@@ -149,9 +153,16 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 			event.setRestOfTicket(restOfEvents);
 			event.setNumberOfTicket(restOfEvents);
 
-
 			appSystem.setData(event);
 		}
+	}
+
+	private float getPercentage(int restOfEvents) {
+		return appSystem.calculatePercentage(restOfEvents, event.getNumberOfTicket());
+	}
+
+	private int getRestOfEvents(int numberOfTicketToBuy) {
+		return appSystem.calculateRestOfEventTicket(event.getNumberOfTicket(), numberOfTicketToBuy);
 	}
 
 	private void setHighlight(Component c, float percentage) {
@@ -185,14 +196,14 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 	}
 
 
-	public void setData(final Event e, int anzViews) {
-		System.out.println(anzViews);
+	public void updateUIWithData(final Event eventData, int anzViews) {
 		this.anzViews = anzViews;
-		this.event = e;
+		update(eventData);
+//		this.event = eventData;
 		actualAvailabilityLabel.setText("Actual Availability");
-		eventNameField.setText(e.getName());
-		eventDateField.setText(String.valueOf(e.getDate()).substring(0, 10));
-		ticketQuantityField.setText(String.valueOf(e.getNumberOfTicket()));
+		eventNameField.setText(eventData.getName());
+		eventDateField.setText(String.valueOf(eventData.getDate()).substring(0, 10));
+		ticketQuantityField.setText(String.valueOf(eventData.getNumberOfTicket()));
 		if (1 == anzViews) {
 			availibilityField.setText("");
 			availibilityField.setBackground(Color.LIGHT_GRAY);
@@ -203,7 +214,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 		ticketQuantityToBuyField.setText("");
 	}
 
-	protected JComponent createEntryFields() {
+	private JComponent createEntryFields() {
 		JPanel panel = new JPanel(new SpringLayout());
 
 		String[] labelStrings;
@@ -216,6 +227,12 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 
 		JLabel[] labels = new JLabel[labelStrings.length];
 		JComponent[] fields = new JComponent[labelStrings.length];
+		setComponent(panel, labelStrings, labels, fields);
+		EventUtilitiesUI.buildCompactGrid(panel, labelStrings.length, 2, 0, 0, 0, GAP_BETWEEN);
+		return panel;
+	}
+
+	private void setComponent(JPanel panel, String[] labelStrings, JLabel[] labels, JComponent[] fields) {
 		int fieldNum = 0;
 
 		// Create the text field and set it up.
@@ -269,6 +286,7 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 							getButton().setEnabled(false);
 						}
 					} catch (NumberFormatException e) {
+						showDialog("Please entez only positiv number!");
 						System.out.println("Wrong value "+ e.getLocalizedMessage());
 					}
 				}
@@ -291,7 +309,13 @@ public class EventPropertyUI extends JPanel implements ActionListener {
 			actualField.addActionListener(this);
 //			actualField.addFocusListener(this);
 		}
-		EventUtilitiesUI.buildCompactGrid(panel, labelStrings.length, 2, 0, 0, 0, GAP_BETWEEN);
-		return panel;
+	}
+
+	@Override
+	public void update(Event post) {
+		LOGGER.info("Begin: "+ "update()");
+		this.event = post;
+//		System.out.println("First: "+ post);
+		LOGGER.info("End: "+ "update()");
 	}
 }

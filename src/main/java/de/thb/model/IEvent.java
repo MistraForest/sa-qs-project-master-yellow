@@ -4,7 +4,10 @@ import java.util.List;
 
 public interface IEvent {
 
-    List<Event> loadEvents();
-    void setData(Event e);
-    Event findByEventName(final String eventName);
+    List<Event> getLoadedEvents();
+    void writeUpdatedData(Event event);
+    Event findByEventName(String eventName);
+    float getPercentageTen();
+    float getPercentageFive();
+    float getPercentageZero();
 }
